@@ -22,10 +22,13 @@ export function writeOutput(output: string) {
   write('output', output)
 }
 
-export function write(outputFile: string, output: string) {
+export function write(outputFile: string, output: unknown) {
   const currentFile = args[0]
   const outputFileFullPath = path.join(currentFile, '..', outputFile)
-  writeFileSync(outputFileFullPath, output)
+  writeFileSync(
+    outputFileFullPath,
+    typeof output === 'string' ? output : JSON.stringify(output)
+  )
 }
 
 export function append(outputFile: string, output: string) {
