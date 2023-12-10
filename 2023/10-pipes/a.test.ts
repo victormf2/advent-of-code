@@ -204,57 +204,45 @@ function paintDown(source: Tile, color: Color, colorMap: Color[][]) {
   if (nextY >= colorMap.length) {
     return
   }
-  const replaceableColor = colorMap[nextY][source.x]
-  if (isPipe(replaceableColor)) {
-    return
-  }
-  let nextColor = replaceableColor as Color
-  do {
+  let nextColorToReplace = colorMap[nextY][source.x] as Color
+  while (!isPipe(nextColorToReplace)) {
     colorMap[nextY][source.x] = color
     nextY++
     if (nextY >= colorMap.length) {
       break
     }
-    nextColor = colorMap[nextY][source.x]
-  } while (nextColor === replaceableColor || nextColor === null)
+    nextColorToReplace = colorMap[nextY][source.x]
+  }
 }
 function paintUp(source: Tile, color: Color, colorMap: Color[][]) {
   let nextY = source.y - 1
   if (nextY < 0) {
     return
   }
-  const replaceableColor = colorMap[nextY][source.x]
-  if (isPipe(replaceableColor)) {
-    return
-  }
-  let nextColor = replaceableColor as Color
-  do {
+  let nextColorToReplace = colorMap[nextY][source.x] as Color
+  while (!isPipe(nextColorToReplace)) {
     colorMap[nextY][source.x] = color
     nextY--
     if (nextY < 0) {
       break
     }
-    nextColor = colorMap[nextY][source.x]
-  } while (nextColor === replaceableColor || nextColor === null)
+    nextColorToReplace = colorMap[nextY][source.x]
+  }
 }
 function paintLeft(source: Tile, color: Color, colorMap: Color[][]) {
   let nextX = source.x - 1
   if (nextX < 0) {
     return
   }
-  const replaceableColor = colorMap[source.y][nextX]
-  if (isPipe(replaceableColor)) {
-    return
-  }
-  let nextColor = replaceableColor as Color
-  do {
+  let nextColorToReplace = colorMap[source.y][nextX] as Color
+  while (!isPipe(nextColorToReplace)) {
     colorMap[source.y][nextX] = color
     nextX--
     if (nextX < 0) {
       break
     }
-    nextColor = colorMap[source.y][nextX]
-  } while (nextColor === replaceableColor || nextColor === null)
+    nextColorToReplace = colorMap[source.y][nextX]
+  }
 }
 function paintRight(source: Tile, color: Color, colorMap: Color[][]) {
   let nextX = source.x + 1
@@ -262,19 +250,15 @@ function paintRight(source: Tile, color: Color, colorMap: Color[][]) {
   if (nextX >= rowLength) {
     return
   }
-  const replaceableColor = colorMap[source.y][nextX]
-  if (isPipe(replaceableColor)) {
-    return
-  }
-  let nextColor = replaceableColor as Color
-  do {
+  let nextColorToReplace = colorMap[source.y][nextX] as Color
+  while (!isPipe(nextColorToReplace)) {
     colorMap[source.y][nextX] = color
     nextX++
     if (nextX >= rowLength) {
       break
     }
-    nextColor = colorMap[source.y][nextX]
-  } while (nextColor === replaceableColor || nextColor === null)
+    nextColorToReplace = colorMap[source.y][nextX]
+  }
 }
 function getColorMap(inputFile: string) {
   const input = read(inputFile)
