@@ -21,11 +21,12 @@ function checkPartialTrace(_trace: string, springs: string) {
 }
 
 type FindCombinationsParams = {
-  trace?: string
   springs: string
-  currentSpringIndex?: number
   damagedGroupLengths: number[]
+  trace?: string
+  currentSpringIndex?: number
   currentDamagedGroupIndex?: number
+  memo?: Record<string, number>
 }
 function findCombinations({
   springs,
@@ -33,7 +34,12 @@ function findCombinations({
   damagedGroupLengths,
   currentDamagedGroupIndex = 0,
   trace = '',
+  memo = {},
 }: FindCombinationsParams) {
+  if (`${currentSpringIndex}-${currentDamagedGroupIndex}` in memo) {
+    return memo[`${currentSpringIndex}-${currentDamagedGroupIndex}`]
+  }
+
   if (currentDamagedGroupIndex >= damagedGroupLengths.length) {
     const rest = springs.substring(currentSpringIndex)
     if (rest.includes('#')) {
@@ -101,13 +107,18 @@ function findCombinations({
       continue
     }
 
-    total += findCombinations({
+    const nextSpringIndex = currentSpringIndex + currentDamagedGroupLength + 1
+    const nextDamagedGroupIndex = currentDamagedGroupIndex + 1
+    const result = findCombinations({
       trace: trace + '#'.repeat(currentDamagedGroupLength) + '.',
       springs,
       damagedGroupLengths: damagedGroupLengths,
-      currentSpringIndex: currentSpringIndex + currentDamagedGroupLength + 1,
-      currentDamagedGroupIndex: currentDamagedGroupIndex + 1,
+      currentSpringIndex: nextSpringIndex,
+      currentDamagedGroupIndex: nextDamagedGroupIndex,
+      memo,
     })
+    memo[`${nextSpringIndex}-${nextDamagedGroupIndex}`] = result
+    total += result
 
     if (currentSpring === '#') {
       checkPartialTrace(trace, springs)
@@ -272,4 +283,50 @@ test('partOne example', function () {
 test('partOne real', function () {
   const result = partOne('input')
   write('output', result)
+})
+
+function unfold(rows: { springs: string; damagedGroupLengths: number[] }[]) {
+  return rows.map(({ springs, damagedGroupLengths }) => {
+    return {
+      springs: Array.from({ length: 5 })
+        .map(() => springs)
+        .join('?'),
+      damagedGroupLengths: Array.from({ length: 5 }).flatMap(
+        () => damagedGroupLengths
+      ),
+    }
+  })
+}
+
+test('unfold', function () {
+  const result = unfold([
+    { springs: '???.###', damagedGroupLengths: [1, 1, 3] },
+  ])[0]
+  expect(result.springs).toEqual('???.###????.###????.###????.###????.###')
+  expect(result.damagedGroupLengths).toEqual([
+    1, 1, 3, 1, 1, 3, 1, 1, 3, 1, 1, 3, 1, 1, 3,
+  ])
+})
+
+function partTwo(inputFile: string) {
+  const input = read(inputFile)
+  const rows = unfold(parseInput(input))
+
+  let total = 0
+  for (const { springs, damagedGroupLengths } of rows) {
+    total += findCombinations({ springs, damagedGroupLengths })
+    currentRow++
+  }
+
+  return total
+}
+
+test('partTwo example', function () {
+  const result = partTwo('example-input')
+  expect(result).toBe(525152)
+})
+
+test('partTwo real', function () {
+  const result = partTwo('input')
+  write('output-two', result)
 })
